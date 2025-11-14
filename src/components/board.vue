@@ -8,8 +8,15 @@ div.tabular { gap: 0px; background: #ccc; }
     width: 35px;
     height: 35px;
 }
-.box:not(.cell-empty) { border: 0.25px solid white; }
-.box.cell-empty { border: 1px solid #00000022; }
+.box:not(.vacant) { 
+    border: 0.5px solid white; 
+    &.adj-n { border-top: none; }
+    &.adj-s { border-bottom: none; }
+    &.adj-e { border-right: none; }
+    &.adj-w { border-left: none; }
+}
+
+.box.vacant { border: 1px solid #00000022; }
 </style>
 
 <script lang="ts">
@@ -28,16 +35,31 @@ class IBoard extends Vue {
     @Prop data: BoardData = []
 
     get cells() {
-        let board: number[][] = this.size ? array2d(this.size) : [];
+        let board: {clr: number, affin: string[]}[][] =
+            this.size ? array2d(this.size) : [];
 
         for (let [i, [blocks, [x, y]]] of enumerate(this.data)) {
             for (let [dx, dy] of blocks) {
-                (board[y + dy] ??= [])[x + dx] = i + 1;
+                (board[y + dy] ??= [])[x + dx] = {
+                    clr: i + 1,
+                    affin: this.affinity([dx, dy], blocks)
+                };
             }
         }
 
         return board.map(row => 
-            row.map(c => ({text: ' ', class: ['box', `color-${c ?? 'empty'}`]})));
+            row.map(c => ({
+                text: ' ',
+                class: ['box', c?.clr ? `color-${c?.clr}` : 'vacant', 
+                        ...c?.affin.map(a => `adj-${a}`) ?? []]
+            }))
+        );
+    }
+
+    affinity([x, y]: XY, l: XY[]) {
+        return l.flatMap(([lx, ly]) =>
+            (lx == x) ? {[-1]: ['n'], 1: ['s']}[ly - y]
+          : (ly == y) ? {[-1]: ['w'], 1: ['e']}[lx - x] : undefined);
     }
 }
 

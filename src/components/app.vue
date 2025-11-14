@@ -11,12 +11,15 @@ div.pieces {
     grid-auto-flow: column;
     grid-auto-columns: max-content;
     gap: 5px;
+    align-items: center;
+
     .tabular {
         background: none;
-    }
-    .box {
-        height: 10px;
-        width: 10px;
+        .box {
+            height: 12px;
+            width: 12px;
+            border-color: #777;
+        }
     }
 }
 
