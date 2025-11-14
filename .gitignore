@@ -1,3 +1,6 @@
 __pycache__
 .ipynb_checkpoints
 .venv
+/build
+/_npmlink
+node_modules
