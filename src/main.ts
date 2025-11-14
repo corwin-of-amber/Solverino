@@ -1,11 +1,9 @@
 import { createApp } from 'vue';
-// @ts-ignore
 import App, { IApp } from './components/app.vue';
 
 function main() {
-    let app = createApp(App) as IApp;
-    app.board
-    app.mount('body');
+    let app = createApp(App).mount('body') as IApp;
+    Object.assign(window, { app });
 }
 
 document.addEventListener('DOMContentLoaded', main);

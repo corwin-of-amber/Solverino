@@ -8,6 +8,10 @@
         "vue-facing-decorator": "^4.0.1"
     },
     "devDependencies": {
+        "@types/lodash": "^4.17.20",
         "typescript": "^5.9.3"
+    },
+    "scripts": {
+        "build": "npx kremlin index.html"
     }
 }

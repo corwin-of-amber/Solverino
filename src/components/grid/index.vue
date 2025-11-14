@@ -13,6 +13,7 @@ div.tabular {
     --ncolumns: 10;
     display: grid;
     width: fit-content;
+    height: fit-content;
     grid-template-columns: repeat(var(--ncolumns), auto);
     gap: 1px;
     padding: 1px;
@@ -68,11 +69,11 @@ class ITabular extends Vue {
     height(rows: Cell[][]) {
         return _.sum(rows.map(row => {
             let max = _.max(row.map(cell => {
-                if (cell.subrows) return this.height(cell.subrows);
+                if (cell?.subrows) return this.height(cell.subrows);
                 else return 1;
             }));
             for (let cell of row) {
-                cell.rowspan = max;
+                if (cell) cell.rowspan = max;
             }
             return max;
         }));

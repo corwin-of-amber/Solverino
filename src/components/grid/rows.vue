@@ -1,10 +1,10 @@
 <template>
     <template v-for="row, i in rows">
         <template v-for="component, j in row">
-            <div v-if="component.text" v-text="component.text"
+            <div v-if="component?.text" v-text="component.text"
                 :class="classFor(component, i, j)"
                 :style="styleFor(component, i, j)"></div>
-            <template v-if="component.subrows">
+            <template v-if="component?.subrows">
                 <GridRows :rows="component.subrows"
                           :startPos="{row: startPos.row + startHeight(i), 
                                       col: startPos.col + j}"></GridRows>
