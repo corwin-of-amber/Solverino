@@ -3,21 +3,13 @@
 </template>
 
 <style lang="scss">
-* { box-sizing: border-box; }
 div.tabular { gap: 0px; background: #ccc; }
 .box {
     width: 35px;
     height: 35px;
 }
+.box:not(.cell-empty) { border: 0.25px solid white; }
 .box.cell-empty { border: 1px solid #00000022; }
-.box.cell-1 { background: #d61b1b; }
-.box.cell-2 { background: #2222d9ff; }
-.box.cell-3 { background: #1f801fff; }
-.box.cell-4 { background: #fcfc12ff; }
-.box.cell-5 { background: #b30fb3ff; }
-.box.cell-6 { background: #54d3d3ff; }
-.box.cell-7 { background: #8665ffff; }
-.box.cell-8 { background: #ff61daff; }
 </style>
 
 <script lang="ts">
@@ -36,10 +28,7 @@ class IBoard extends Vue {
     @Prop data: BoardData = []
 
     get cells() {
-        /** @todo default width should be auto calc-ed */
-        let [szx, szy] = this.size ?? [];
-        let board = this.size ? Array.from({length: szy},
-            () => Array.from({length: szx}), () => undefined) : [];
+        let board: number[][] = this.size ? array2d(this.size) : [];
 
         for (let [i, [blocks, [x, y]]] of enumerate(this.data)) {
             for (let [dx, dy] of blocks) {
@@ -47,20 +36,23 @@ class IBoard extends Vue {
             }
         }
 
-        console.log(board.map(row => 
-            row.map(c => ({text: ' ', class: ['box', `cell-${c ?? 'empty'}`]}))));
-
         return board.map(row => 
-            row.map(c => ({text: ' ', class: ['box', `cell-${c ?? 'empty'}`]})));
+            row.map(c => ({text: ' ', class: ['box', `color-${c ?? 'empty'}`]})));
     }
 }
 
 type BoardData = [XY[], XY][];
 
 
+function array2d<T>([szx, szy]: XY, fill: T = undefined): T[][] {
+    return Array.from({length: szy}, () => 
+               Array.from({length: szx}), () => fill);
+}
+
 function enumerate<T>(arr: T[]): [number, T][] {
     return arr.map((x, i) => [i, x]);
 }
+
 
 export { IBoard, BoardData }
 export default toNative(IBoard)
