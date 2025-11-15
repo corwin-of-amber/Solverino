@@ -9,10 +9,13 @@ div.tabular { gap: 0px; background: #ccc; }
     height: 35px;
 }
 .box:not(.vacant) { 
-    border: 0.5px solid white; 
-    &.adj-n { border-top: none; }
+    --outer-border: 0.5px solid white; 
+    --inner-border: 0.5px solid #fff4;
+
+    border: var(--outer-border);
+    &.adj-n { border-top: var(--inner-border); }
     &.adj-s { border-bottom: none; }
-    &.adj-e { border-right: none; }
+    &.adj-e { border-right: var(--inner-border); }
     &.adj-w { border-left: none; }
 }
 

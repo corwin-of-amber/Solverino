@@ -15,10 +15,12 @@ div.pieces {
 
     .tabular {
         background: none;
+        filter: drop-shadow(0px 0px 2px #0006);
         .box {
             height: 12px;
             width: 12px;
-            border-color: #777;
+            --outer-border: 1px solid #3334;
+            --inner-border: 0.5px solid #fff6;
         }
     }
 }
