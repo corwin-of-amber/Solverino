@@ -1,7 +1,11 @@
 <template>
     <Board :data="board" :size="[12, 5]"></Board>
     <div class="pieces">
-        <Board v-for="penta in pentas" :data="[[penta, [0,0]]]"></Board>
+        <div v-for="penta in pentas" class="card" 
+                :class="{selected: selected.includes(penta)}"
+                @click="toggleSelect(penta)">
+            <Board :data="[[penta, [0,0]]]" selectMode="none"></Board>
+        </div>
     </div>
 </template>
 
@@ -11,7 +15,14 @@ div.pieces {
     grid-auto-flow: column;
     grid-auto-columns: max-content;
     gap: 5px;
-    align-items: center;
+
+    div.card {
+        display: flex;
+        align-items: center;
+        height: 100%;    
+        padding: 5px;    
+        border-radius: 5px;
+    }
 
     .tabular {
         background: none;
@@ -23,6 +34,11 @@ div.pieces {
             --inner-border: 0.5px solid #fff6;
         }
     }
+
+    .selected {
+        outline: 1px solid #800;
+        background-color: #fed1d8;
+    }
 }
 
 </style>
@@ -31,15 +47,19 @@ div.pieces {
 import _ from 'lodash';
 import { Vue, toNative, Component } from 'vue-facing-decorator';
 import { XY } from '../infra/geom2d';
-import Board, { BoardData } from './board.vue';
+import Board, { BoardData, Piece } from './board.vue';
 
 
 @Component({
     components: { Board }
 })
 class IApp extends Vue {
-    board: BoardData = JSON.parse(MOCK_JSON)
-    pentas: XY[][]
+    board: BoardData = (JSON.parse(MOCK_JSON) as [XY[], XY][]).map(
+            ([blocks, at], i) => ([{color: i + 1, blocks}, at])
+        );
+    pentas: Piece[]
+
+    selected: Piece[] = []
 
     constructor() {
         super();
@@ -51,11 +71,21 @@ class IApp extends Vue {
     }
 
     async loadPentas() {
-        this.pentas = await (await fetch('/data/pentas.json')).json();
+        this.pentas = (await (await fetch('/data/pentas.json')).json() as XY[][]).map(
+            (blocks: XY[], i) => ({color: i + 1, blocks})
+        );
     }
 
     get pentasData() {
         return this.pentas.slice(0, 3).map((shape, i) => [shape, [0,0]]);
+    }
+
+    toggleSelect(penta: Piece) {
+        if (this.selected.includes(penta)) {
+            _.remove(this.selected, p => p === penta);
+        } else {
+            this.selected.push(penta);
+        }
     }
 }
 

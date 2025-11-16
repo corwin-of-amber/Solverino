@@ -38,13 +38,13 @@ class IBoard extends Vue {
     @Prop data: BoardData = []
 
     get cells() {
-        let board: {clr: number, affin: string[]}[][] =
+        let board: {color: number, affin: string[]}[][] =
             this.size ? array2d(this.size) : [];
 
-        for (let [i, [blocks, [x, y]]] of enumerate(this.data)) {
+        for (let [{color, blocks}, [x, y]] of this.data) {
             for (let [dx, dy] of blocks) {
                 (board[y + dy] ??= [])[x + dx] = {
-                    clr: i + 1,
+                    color,
                     affin: this.affinity([dx, dy], blocks)
                 };
             }
@@ -53,7 +53,7 @@ class IBoard extends Vue {
         return board.map(row => 
             row.map(c => ({
                 text: ' ',
-                class: ['box', c?.clr ? `color-${c?.clr}` : 'vacant', 
+                class: ['box', c?.color ? `color-${c?.color}` : 'vacant', 
                         ...c?.affin.map(a => `adj-${a}`) ?? []]
             }))
         );
@@ -66,7 +66,8 @@ class IBoard extends Vue {
     }
 }
 
-type BoardData = [XY[], XY][];
+type Piece = {color: number, blocks: XY[]};
+type BoardData = [Piece, XY][];
 
 
 function array2d<T>([szx, szy]: XY, fill: T = undefined): T[][] {
@@ -79,6 +80,6 @@ function enumerate<T>(arr: T[]): [number, T][] {
 }
 
 
-export { IBoard, BoardData }
+export { IBoard, BoardData, Piece }
 export default toNative(IBoard)
 </script>

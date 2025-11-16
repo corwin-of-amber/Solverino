@@ -24,6 +24,7 @@
 
     --burnt-brick: #f94e16;
     --hot-pink: #f448a1;
+    --subset-yellow: #ffde59;
     
     $colors: 1 --burnt-brick,
              2 --midnight-green,
@@ -35,7 +36,8 @@
              8 --rust,
              9 --rufous,
              10 --auburn,
-             11 --hot-pink;
+             11 --hot-pink,
+             12 --subset-yellow;
 
     @include color-index($colors);
 }

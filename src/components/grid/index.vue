@@ -1,7 +1,7 @@
 <template>
     <div class="tabular"
             :style="{'--ncolumns': width, '--nrows': computedHeight}"
-            @mousedown="selectCell">
+            @mousedown="ev => selectMode === 'single' && selectCell(ev)">
         <GridRows :rows="data"></GridRows>
         <div v-if="sel" class="selection"
             :style="{'--rowstart': sel.row, '--colstart': sel.col}"></div>
@@ -55,6 +55,8 @@ import GridRows from './rows.vue';
 class ITabular extends Vue {
     @Prop({default: []})
     data: Cell[][]
+    @Prop({default: 'single'})
+    selectMode: 'none' | 'single' | 'multiple'
     
     sel: RowCol = undefined
 
