@@ -22,6 +22,17 @@ div.pieces {
         height: 100%;    
         padding: 5px;    
         border-radius: 5px;
+        position: relative;
+        transition: top 0.25s ease-out,
+                    background-color 0.25s ease-in,
+                    outline-color 0.5s;
+        top: 0px;
+        outline: 1px solid transparent;
+        &.selected {
+            top: -7px;
+            outline: 1px solid #800;
+            background-color: #fcda;
+        }
     }
 
     .tabular {
@@ -33,11 +44,6 @@ div.pieces {
             --outer-border: 1px solid #3334;
             --inner-border: 0.5px solid #fff6;
         }
-    }
-
-    .selected {
-        outline: 1px solid #800;
-        background-color: #fed1d8;
     }
 }
 
