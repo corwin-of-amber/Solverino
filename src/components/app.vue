@@ -7,6 +7,7 @@
             <Board :data="[[penta, [0,0]]]" selectMode="none"></Board>
         </div>
     </div>
+    <button @click="solve">Solve</button>
 </template>
 
 <style lang="scss">
@@ -15,6 +16,7 @@ div.pieces {
     grid-auto-flow: column;
     grid-auto-columns: max-content;
     gap: 5px;
+    margin-top: 1em;
 
     div.card {
         display: flex;
@@ -72,8 +74,10 @@ class IApp extends Vue {
         this.pentas = []
     }
 
-    mounted() {
-        this.loadPentas();
+    async mounted() {
+        await this.loadPentas();
+        /** @todo load last set from local storage */
+        this.selected = [2,5,10].map(i => this.pentas[i]);
     }
 
     async loadPentas() {
@@ -91,6 +95,24 @@ class IApp extends Vue {
             _.remove(this.selected, p => p === penta);
         } else {
             this.selected.push(penta);
+        }
+    }
+
+    async solve() {
+        let res = await fetch('http://localhost:5000/process', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({puzzle: this.selected})
+        });
+        let data = await res.json();
+        if (data.status === 'success') {
+            this.board = (data.solution as {penta: {blocks: XY[]}, at: XY}[]).map(
+                ({penta, at}, i) => ([{color: i + 1, blocks: penta.blocks}, at])
+            );
+        } else {
+            alert('Error from server: ' + (data.error || 'Unknown error'));
         }
     }
 }

@@ -1,4 +1,5 @@
 from z3 import *
+from functools import reduce
 
 
 class Vocab:
@@ -28,3 +29,8 @@ class RelationOps:
         '''Composes relations on points'''
         p = self.vocab.fresh_pt()
         return lambda p1, p2: Exists(list(p), And(r1(p1, p), r2(p, p2)))
+
+
+def switch_expr(expr, choices):
+    return reduce(lambda rest, ichoice: If(expr == ichoice[0], ichoice[1], rest),
+                  enumerate(choices), False)
