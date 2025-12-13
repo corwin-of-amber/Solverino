@@ -50,6 +50,7 @@ import GridRows from './rows.vue';
 
 @Component({
     name: "Grid",
+    emits: ['select'],
     components: { GridRows }
 })
 class ITabular extends Vue {
@@ -84,6 +85,8 @@ class ITabular extends Vue {
     selectCell(ev: MouseEvent) {
         let cst = getComputedStyle(ev.target as Element);
         this.sel = {row: +cst.gridRowStart, col: +cst.gridColumnStart};
+        console.log('Selected cell', this.sel);
+        this.$emit('select', {ev, selection: this.sel});
     }
 }
 

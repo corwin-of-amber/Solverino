@@ -1,5 +1,6 @@
 <template>
-    <Board :data="board" :size="[12, 5]"></Board>
+    <Board :data="board" :size="[12, 5]"
+        @cell:select="revealPiece($event.selection)"></Board>
     <div class="pieces">
         <div v-for="penta in pentas" class="card" 
                 :class="{selected: selected.includes(penta)}"
@@ -69,6 +70,8 @@ class IApp extends Vue {
 
     selected: Piece[] = []
 
+    solution: BoardData = []
+
     constructor() {
         super();
         this.pentas = []
@@ -108,12 +111,21 @@ class IApp extends Vue {
         });
         let data = await res.json();
         if (data.status === 'success') {
-            this.board = (data.solution as {penta: Piece, at: XY}[]).map(
+            this.solution = (data.solution as {penta: Piece, at: XY}[]).map(
                 ({penta, at}) => ([penta, at])
             );
+            this.board = [];
         } else {
             alert('Error from server: ' + (data.error || 'Unknown error'));
         }
+    }
+
+    revealPiece(selection: {row: number, col: number}) {
+        console.log('Revealing piece at', selection);
+        this.board = 
+            this.solution.filter(([{blocks}, [x, y]]) =>
+                blocks.some(([dx, dy]) =>
+                    x + dx == selection.col - 1 && y + dy == selection.row - 1));
     }
 }
 

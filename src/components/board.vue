@@ -1,5 +1,6 @@
 <template>
-    <Grid :data="cells"></Grid>
+    <Grid :data="cells" :selectMode="selectMode"
+          @select="$emit('cell:select', $event)"></Grid>
 </template>
 
 <style lang="scss">
@@ -31,11 +32,13 @@ import Grid from './grid';
 
 
 @Component({
+    emits: ['cell:select'],
     components: { Grid }
 })
 class IBoard extends Vue {
     @Prop size: XY
     @Prop data: BoardData = []
+    @Prop setectMode: 'none' | 'single' | 'multiple' = 'none'
 
     get cells() {
         let board: {color: number, affin: string[]}[][] =

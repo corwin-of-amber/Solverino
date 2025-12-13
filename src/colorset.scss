@@ -42,3 +42,59 @@
     @include color-index($colors);
 }
 
+.colorset-pastel {  // https://coolors.co/f72585-b5179e-720026-560bad-480ca8-3a0ca3-3f37c9-4361ee-4895ef-4cc9f0
+    --rich-black: #720026ff;
+    --dark-magenta: #b5179eff;
+    --vivid-pink: #f72585ff;
+    --indigo-dye: #560badff;
+    --blue-magenta-violet: #480ca8ff;
+    --royal-blue: #3a0ca3ff;
+    --blue-cobalt: #3f37c9ff;
+    --blue-ncs: #4361eeff;
+    --blue-crayola: #4895efff;
+    --cyan-process: #4cc9f0ff;
+
+    --light-yellowish-pink: #ffb5d8;
+    --light-lavender: #cdb4db;
+    --light-powder-blue: #b2f7ef;
+
+    $colors: 1 --light-yellowish-pink,
+             2 --dark-magenta,
+             3 --vivid-pink,
+             4 --light-lavender,
+             5 --light-powder-blue,
+             6 --cyan-process,
+             7 --blue-cobalt,
+             8 --royal-blue,
+             9 --blue-ncs,
+             10 --indigo-dye,
+             11 --rich-black,
+             12 --blue-magenta-violet;
+
+    @include color-index($colors);
+}
+
+
+.colorset-katamino-mini {
+    --katamino-blue: #1E90FF;
+    --katamino-orange: #FFA500;
+    --katamino-green: #32CD32;
+    --katamino-purple: #800080;
+    --katamino-crimson: #FF4500;
+    --katamino-yellow: #FFFF00;
+
+    $colors: 1 --katamino-orange,
+             2 --katamino-crimson,
+             3 --katamino-orange,
+             4 --katamino-blue,
+             5 --katamino-yellow,
+             6 --katamino-purple,
+             7 --katamino-yellow,
+             8 --katamino-green,
+             9 --katamino-blue,
+             10 --katamino-crimson,
+             11 --katamino-green,
+             12 --katamino-purple;
+
+    @include color-index($colors);
+}
