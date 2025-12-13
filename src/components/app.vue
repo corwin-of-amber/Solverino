@@ -99,7 +99,7 @@ class IApp extends Vue {
     }
 
     async solve() {
-        let res = await fetch('http://localhost:5000/process', {
+        let res = await fetch('http://localhost:2133/process', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -108,14 +108,15 @@ class IApp extends Vue {
         });
         let data = await res.json();
         if (data.status === 'success') {
-            this.board = (data.solution as {penta: {blocks: XY[]}, at: XY}[]).map(
-                ({penta, at}, i) => ([{color: i + 1, blocks: penta.blocks}, at])
+            this.board = (data.solution as {penta: Piece, at: XY}[]).map(
+                ({penta, at}) => ([penta, at])
             );
         } else {
             alert('Error from server: ' + (data.error || 'Unknown error'));
         }
     }
 }
+
 
 const MOCK_JSON = '[[[[1, 1], [0, 1], [2, 0], [1, 0], [0, 0]], [5, 0]], [[[2, 2], [2, 1], [0, 0], [1, 0], [2, 0]], [2, 0]], [[[0, 1], [1, 1], [2, 1], [3, 0], [3, 1]], [4, 3]], [[[2, 1], [2, 2], [1, 1], [0, 0], [0, 1]], [1, 0]], [[[0, 0], [0, 1], [0, 2], [1, 2], [0, 3]], [0, 0]], [[[2, 1], [2, 0], [1, 2], [1, 1], [0, 2]], [0, 2]], [[[0, 1], [1, 0], [1, 1], [2, 0], [3, 0]], [2, 3]], [[[0, 1], [1, 1], [1, 2], [2, 0], [2, 1]], [5, 1]]]';
 

@@ -34,13 +34,14 @@ def solve_katamino(puzzle_json):
     from solver import Solver
 
     pentas = [Penta(d['blocks']) for d in puzzle_json['puzzle']]
+    colors = [d['color'] for d in puzzle_json['puzzle']]
 
     solver = Solver()
     solver.add_pentas(pentas)
     if solver.check():
         return [
-            {'at': p.at, 'penta': {'blocks': p.penta.blocks}} 
-            for p in solver.solution()
+            {'at': p.at, 'penta': {'blocks': p.penta.blocks, 'color': c}} 
+            for p, c in zip(solver.solution(), colors)
         ]
     else:
         return None
@@ -48,4 +49,7 @@ def solve_katamino(puzzle_json):
 
 if __name__ == '__main__':
     # For development only. In production use a WSGI server.
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=2133)
+
+# dev server with reload:
+# python -m flask --app src/backend.py run -p 2133 --reload
