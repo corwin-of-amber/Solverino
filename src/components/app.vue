@@ -9,7 +9,10 @@
             <Board :data="[[penta, [0,0]]]" selectMode="none"></Board>
         </div>
     </div>
-    <button @click="solve">Solve</button>
+    <button @click="solve">Solve <em>🧠</em></button>
+    <div class="switch-with-labels">
+        <span>pick<em>🤏</em></span><slider-switch v-model="phaseSwitch"/><span><em>🤚</em> place</span>
+    </div>
 
     <Draggable ref="dragged" class="drag-piece card" v-slot="{ position }"
             :prevent-default="true" :class="{hidden: !dragging.penta}">
@@ -73,29 +76,45 @@ div.card {
         }
     }
 }
+
+div.switch-with-labels {
+    display: inline-block;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 75%;
+    margin: 0 5px;
+    label.switch { margin: 0 2px; }
+}
+
+em {
+    display: inline-block;
+    transform: scale(1.75);
+    transform-origin: center;
+    margin: 0 3px;
+}
 </style>
 
 <script lang="ts">
 import _ from 'lodash';
 import { Vue, toNative, Component, Ref } from 'vue-facing-decorator';
 import { UseDraggable } from '@vueuse/components';
+import SliderSwitch from '../infra/components/slider-switch.vue';
 import { XY } from '../infra/geom2d';
 import Board, { BoardData, Piece } from './board.vue';
 
 
 @Component({
-    components: { Board, Draggable: UseDraggable }
+    components: { Board, SliderSwitch, Draggable: UseDraggable }
 })
 class IApp extends Vue {
-    board: BoardData = (JSON.parse(MOCK_JSON) as [XY[], XY][]).map(
-            ([blocks, at], i) => ([{color: i + 1, blocks}, at])
-        );
+    board: BoardData = []
     pentas: Piece[]
 
-    phase: 'select' | 'game' = 'game'
     selected: Piece[] = []
 
     solution: BoardData = []
+
+    phaseSwitch: any
+    get phase() { return this.phaseSwitch ? 'game' : 'select'}
 
     constructor() {
         super();

@@ -38,7 +38,7 @@ import Grid from './grid';
 class IBoard extends Vue {
     @Prop size: XY
     @Prop data: BoardData = []
-    @Prop setectMode: 'none' | 'single' | 'multiple' = 'none'
+    @Prop selectMode: 'none' | 'single' | 'multiple' = 'none'
 
     get cells() {
         let board: {color: number, affin: string[]}[][] =
@@ -63,9 +63,9 @@ class IBoard extends Vue {
     }
 
     affinity([x, y]: XY, l: XY[]) {
-        return l.flatMap(([lx, ly]) =>
+        return l.flatMap(([lx, ly]) => (
             (lx == x) ? {[-1]: ['n'], 1: ['s']}[ly - y]
-          : (ly == y) ? {[-1]: ['w'], 1: ['e']}[lx - x] : undefined);
+          : (ly == y) ? {[-1]: ['w'], 1: ['e']}[lx - x] : []) ?? []);
     }
 }
 
