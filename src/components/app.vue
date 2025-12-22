@@ -15,7 +15,8 @@
     </div>
 
     <Draggable ref="dragged" class="drag-piece card" v-slot="{ position }"
-            :prevent-default="true" :class="{hidden: !dragging.penta}">
+            :prevent-default="true" :class="{hidden: !dragging.penta}"
+            @end="dragEnd">
         <Board v-if="dragging.penta" :data="[[dragging.penta, [0,0]]]" selectMode="none"
             :style="dragStyle()"></Board>
         {{ (dragging.position = position) && undefined }}
@@ -25,7 +26,11 @@
 <style lang="scss">
 .drag-piece {
     position: fixed;
+    pointer-events: none;
     &.hidden { display: none; }
+    > div {
+        transition: transform 0.1s ease-out;
+    }
 }
 div.pieces {
     display: grid;
@@ -189,6 +194,7 @@ class IApp extends Vue {
     dragging: {
         penta?: Piece,
         grab?: {x: number, y: number},
+        grabCell?: {row: number, col: number},
         position?: {x: number, y: number},
         rotate: 0 | 90 | 180 | 270
     } = {rotate: 0}
@@ -196,11 +202,11 @@ class IApp extends Vue {
     dragPiece(ev: PointerEvent, penta: Piece) {
         this.dragging.penta = penta;
         let el = (ev.target as HTMLElement).closest('.tabular');
-        console.log('picked', penta, ITabular.getCoordinates(ev.target as Element));
         let r = el.getBoundingClientRect();
         this.dragging.position.x = r.left;
         this.dragging.position.y = r.top;
         this.dragging.grab = {x: ev.clientX - r.left, y: ev.clientY - r.top};
+        this.dragging.grabCell = ITabular.getCoordinates(ev.target as Element);;
         requestAnimationFrame(() => this.dragged.$el.dispatchEvent(ev));
         ev.preventDefault();
     }
@@ -214,10 +220,21 @@ class IApp extends Vue {
 
     dragStyle() {
         return {
-            transform: `rotate(${this.dragging.rotate}deg) scale(2)`,
+            transform: `rotate(${this.dragging.rotate}deg) scale(3)`,
             'transform-origin': (pt => pt && `${pt.x}px ${pt.y}px`)(this.dragging.grab)
         };
     }
+
+    dragEnd(pos: any, ev: DragEvent) {
+        let coords = ITabular.getCoordinates(ev.target as Element);
+        console.log('dropped at', coords);
+        if (coords && this.dragging.grabCell) {
+            this.board.push([this.dragging.penta, 
+                [coords.col - this.dragging.grabCell.col, coords.row - this.dragging.grabCell.row]]);
+        }
+        this.dragging.penta = undefined;
+    }
+
 }
 
 

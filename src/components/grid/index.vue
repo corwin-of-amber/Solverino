@@ -83,7 +83,8 @@ class ITabular extends Vue {
     }
 
     static getCoordinates(el: Element) {
-        let cst = getComputedStyle(el.closest('.grid--cell'));
+        let cell = el.closest('.grid--cell'),
+            cst = cell && getComputedStyle(cell);
         return cst && {row: +cst.gridRowStart, col: +cst.gridColumnStart};
     }
 
