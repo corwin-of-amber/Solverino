@@ -1,5 +1,5 @@
 <template>
-    <Grid :data="cells" :selectMode="selectMode"
+    <Grid ref="grid" :data="cells" :selectMode="selectMode"
           @select="$emit('cell:select', $event)"></Grid>
 </template>
 
@@ -25,10 +25,10 @@ div.tabular { gap: 0px; background: #ccc; }
 
 <script lang="ts">
 import _ from 'lodash';
-import { Vue, toNative, Prop, Component } from 'vue-facing-decorator';
+import { Vue, Component, toNative, Prop, Ref } from 'vue-facing-decorator';
 
 import { XY } from '../infra/geom2d';
-import Grid from './grid';
+import Grid, { ITabular } from './grid';
 
 
 @Component({
@@ -39,6 +39,8 @@ class IBoard extends Vue {
     @Prop size: XY
     @Prop data: BoardData = []
     @Prop selectMode: 'none' | 'single' | 'multiple' = 'none'
+
+    @Ref grid: ITabular
 
     get cells() {
         let board: {color: number, affin: string[]}[][] =

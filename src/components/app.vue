@@ -1,5 +1,5 @@
 <template>
-    <Board :data="board" :size="[12, 5]"
+    <Board :data="board" :size="[12, 5]" ref="board"
         @cell:select="revealPiece($event.selection)"></Board>
     <div class="pieces" :class="{[`phase-${phase}`]: true}">
         <div v-for="penta in pentas" class="card" 
@@ -100,6 +100,7 @@ import { UseDraggable } from '@vueuse/components';
 import SliderSwitch from '../infra/components/slider-switch.vue';
 import { XY } from '../infra/geom2d';
 import Board, { BoardData, Piece } from './board.vue';
+import { ITabular } from './grid';
 
 
 @Component({
@@ -195,7 +196,7 @@ class IApp extends Vue {
     dragPiece(ev: PointerEvent, penta: Piece) {
         this.dragging.penta = penta;
         let el = (ev.target as HTMLElement).closest('.tabular');
-        console.log(ev.target);
+        console.log('picked', penta, ITabular.getCoordinates(ev.target as Element));
         let r = el.getBoundingClientRect();
         this.dragging.position.x = r.left;
         this.dragging.position.y = r.top;

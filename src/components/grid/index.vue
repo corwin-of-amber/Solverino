@@ -82,10 +82,13 @@ class ITabular extends Vue {
         }));
     }
 
+    static getCoordinates(el: Element) {
+        let cst = getComputedStyle(el.closest('.grid--cell'));
+        return cst && {row: +cst.gridRowStart, col: +cst.gridColumnStart};
+    }
+
     selectCell(ev: MouseEvent) {
-        let cst = getComputedStyle(ev.target as Element);
-        this.sel = {row: +cst.gridRowStart, col: +cst.gridColumnStart};
-        console.log('Selected cell', this.sel);
+        this.sel = ITabular.getCoordinates(ev.target as Element);
         this.$emit('select', {ev, selection: this.sel});
     }
 }
