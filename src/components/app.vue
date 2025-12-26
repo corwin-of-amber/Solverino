@@ -1,11 +1,12 @@
 <template>
     <Board :data="board" :size="[12, 5]" ref="board"
+        @pointerdown="pickBack"
         @cell:select="revealPiece($event.selection)"></Board>
     <div class="pieces" :class="{[`phase-${phase}`]: true}">
         <div v-for="penta in pentas" class="card" 
                 :class="{selected: selected.includes(penta)}"
                 @click="phase == 'select' && toggleSelect(penta)"
-                @pointerdown="phase == 'game' && dragPiece($event, penta)">
+                @pointerdown="phase == 'game' && dragFromTray($event, penta)">
             <Board :data="[[penta, [0,0]]]" selectMode="none"></Board>
         </div>
     </div>
@@ -119,7 +120,7 @@ class IApp extends Vue {
 
     solution: BoardData = []
 
-    phaseSwitch: any
+    phaseSwitch: any = 1
     get phase() { return this.phaseSwitch ? 'game' : 'select'}
 
     constructor() {
@@ -180,12 +181,36 @@ class IApp extends Vue {
 
     revealPiece(selection: {row: number, col: number}) {
         console.log('Revealing piece at', selection);
+        let xy = {x: selection.col - 1, y: selection.row - 1};
+
         this.board = 
             this.solution.filter(([{blocks}, [x, y]]) =>
-                blocks.some(([dx, dy]) =>
-                    x + dx == selection.col - 1 && y + dy == selection.row - 1));
+                blocks.some(([dx, dy]) => x + dx == xy.x && y + dy == xy.y));
     }
     
+    pickUpPiece(at: {row: number, col: number}) {
+        let xy = [at.col - 1, at.row - 1],
+            idx =
+                this.board.findIndex(([{blocks}, [x, y]]) =>
+                    blocks.some(([dx, dy]) => x + dx == xy[0] && y + dy == xy[1]));
+        if (idx >= 0) {
+            let [penta, [x, y]] = this.board[idx];
+            this.board.splice(idx, 1);
+            return [penta, [xy[0] - x, xy[1] - y]] as [Piece, XY];
+        }
+        else return undefined;
+    }
+
+    pickBack(ev: PointerEvent) {
+        let c = ITabular.getCoordinates(ev.target as Element);
+
+        let pick = this.pickUpPiece(c);
+        if (pick) {
+            let [penta, [dx, dy]] = pick;
+            this.dragFromBoard(ev, penta, [dx, dy]);
+        }
+    }
+
     // -------------
     // Dragging Part
     // -------------
@@ -196,10 +221,11 @@ class IApp extends Vue {
         grab?: {x: number, y: number},
         grabCell?: {row: number, col: number},
         position?: {x: number, y: number},
+        scale: number,
         rotate: 0 | 90 | 180 | 270
-    } = {rotate: 0}
+    } = {scale: 3, rotate: 0}
 
-    dragPiece(ev: PointerEvent, penta: Piece) {
+    dragFromTray(ev: PointerEvent, penta: Piece) {
         this.dragging.penta = penta;
         let el = (ev.target as HTMLElement).closest('.tabular');
         let r = el.getBoundingClientRect();
@@ -207,6 +233,16 @@ class IApp extends Vue {
         this.dragging.position.y = r.top;
         this.dragging.grab = {x: ev.clientX - r.left, y: ev.clientY - r.top};
         this.dragging.grabCell = ITabular.getCoordinates(ev.target as Element);;
+        requestAnimationFrame(() => this.dragged.$el.dispatchEvent(ev));
+        ev.preventDefault();
+    }
+
+    dragFromBoard(ev: PointerEvent, penta: Piece, [dx, dy]: XY) {
+        this.dragging.penta = penta;
+        this.dragging.grab = {x: dx * 12 + 6, y: dy * 12 + 6};
+        this.dragging.position.x = ev.clientX - this.dragging.grab.x;
+        this.dragging.position.y = ev.clientY - this.dragging.grab.y;
+        this.dragging.grabCell = {row: dy + 1, col: dx + 1};
         requestAnimationFrame(() => this.dragged.$el.dispatchEvent(ev));
         ev.preventDefault();
     }
@@ -220,7 +256,7 @@ class IApp extends Vue {
 
     dragStyle() {
         return {
-            transform: `rotate(${this.dragging.rotate}deg) scale(3)`,
+            transform: `rotate(${this.dragging.rotate}deg) scale(${this.dragging.scale})`,
             'transform-origin': (pt => pt && `${pt.x}px ${pt.y}px`)(this.dragging.grab)
         };
     }
