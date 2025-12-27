@@ -1,5 +1,5 @@
 <template>
-    <Board :data="board" :size="[12, 5]" ref="board"
+    <Board :data="board" :size="[12, 5]" ref="gameBoard"
         @pointerdown="pickBack"
         @cell:select="revealPiece($event.selection)"></Board>
     <div class="pieces" :class="{[`phase-${phase}`]: true}">
@@ -105,8 +105,9 @@ import { Vue, toNative, Component, Ref } from 'vue-facing-decorator';
 import { UseDraggable } from '@vueuse/components';
 import SliderSwitch from '../infra/components/slider-switch.vue';
 import { XY } from '../infra/geom2d';
-import Board, { BoardData, Piece } from './board.vue';
+import Board, { IBoard, BoardData, Piece } from './board.vue';
 import { ITabular } from './grid';
+import { Penta } from '../penta';
 
 
 @Component({
@@ -123,6 +124,8 @@ class IApp extends Vue {
     phaseSwitch: any = 1
     get phase() { return this.phaseSwitch ? 'game' : 'select'}
 
+    @Ref gameBoard: IBoard
+
     constructor() {
         super();
         this.pentas = []
@@ -137,7 +140,6 @@ class IApp extends Vue {
             switch (ev.code) {
                 case 'ShiftLeft': 
                     this.dragging.rotate += 90; break;
-
             }
         });
     }
@@ -226,13 +228,15 @@ class IApp extends Vue {
     } = {scale: 3, rotate: 0}
 
     dragFromTray(ev: PointerEvent, penta: Piece) {
-        this.dragging.penta = penta;
-        let el = (ev.target as HTMLElement).closest('.tabular');
+        let el = (ev.target as HTMLElement).closest('.tabular'),
+        cell = ITabular.getCoordinates(ev.target as Element);
+        if (!el || !cell) return;
         let r = el.getBoundingClientRect();
+        this.dragging.penta = penta;
         this.dragging.position.x = r.left;
         this.dragging.position.y = r.top;
         this.dragging.grab = {x: ev.clientX - r.left, y: ev.clientY - r.top};
-        this.dragging.grabCell = ITabular.getCoordinates(ev.target as Element);;
+        this.dragging.grabCell = cell;
         requestAnimationFrame(() => this.dragged.$el.dispatchEvent(ev));
         ev.preventDefault();
     }
@@ -262,13 +266,23 @@ class IApp extends Vue {
     }
 
     dragEnd(pos: any, ev: DragEvent) {
-        let coords = ITabular.getCoordinates(ev.target as Element);
-        console.log('dropped at', coords);
+        let coords = this.gameBoard.grid.getCoordinates(ev.target as Element);
+
         if (coords && this.dragging.grabCell) {
-            this.board.push([this.dragging.penta, 
-                [coords.col - this.dragging.grabCell.col, coords.row - this.dragging.grabCell.row]]);
+            let {penta: {blocks, color}, grabCell, rotate} = this.dragging;
+            let penta = new Penta(blocks)
+                .untranslate([grabCell.col - 1, grabCell.row - 1]);
+            for (; rotate > 0; rotate -= 90) {
+                penta = penta.rot90cw();
+            }
+            let [dx, dy] = penta.topLeft();
+            this.board.push([{color, blocks: penta.untranslate([dx, dy]).blocks}, 
+                [coords.col + dx - 1, coords.row + dy - 1]]);
         }
-        this.dragging.penta = undefined;
+        Object.assign(this.dragging, {
+            penta: undefined, grab: undefined, grabCell: undefined,
+            rotate: 0 
+        });
     }
 
 }

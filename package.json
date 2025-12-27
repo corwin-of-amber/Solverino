@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "main": "build/kremlin/index.html",
     "dependencies": {
+        "@types/node": "^25.0.3",
         "@vueuse/components": "^14.1.0",
         "@vueuse/core": "^14.1.0",
         "lodash": "^4.17.21",

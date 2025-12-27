@@ -82,6 +82,11 @@ class ITabular extends Vue {
         }));
     }
 
+    getCoordinates(el: Element) {
+        if (el.closest('.tabular') !== this.$el) return this.sel;
+        return ITabular.getCoordinates(el);
+    }
+
     static getCoordinates(el: Element) {
         let cell = el.closest('.grid--cell'),
             cst = cell && getComputedStyle(cell);
